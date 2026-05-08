@@ -8,7 +8,12 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 
+import { useEffect } from "react";
 import appCss from "../styles.css?url";
+import { BottomNav } from "@/components/BottomNav";
+import { StarryBackground } from "@/components/StarryBackground";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -72,19 +77,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "HabitBolt" },
+      { name: "description", content: "HabitBolt — app de produtividade premium para hábitos, hidratação e bem-estar." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "HabitBolt" },
+      { property: "og:description", content: "HabitBolt — app de produtividade premium para hábitos, hidratação e bem-estar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "HabitBolt" },
+      { name: "twitter:description", content: "HabitBolt — app de produtividade premium para hábitos, hidratação e bem-estar." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/L1XKJLVMQaheCG9vlIKJbMJZf272/social-images/social-1778243587169-SAVE_20260403_151300.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/L1XKJLVMQaheCG9vlIKJbMJZf272/social-images/social-1778243587169-SAVE_20260403_151300.webp" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -113,7 +129,43 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthProvider>
+        <StarryBackground />
+        <AuthGate>
+          <Outlet />
+        </AuthGate>
+        <Toaster richColors position="top-center" />
+      </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const isAuthRoute = router.state.location.pathname.startsWith("/auth");
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user && !isAuthRoute) router.navigate({ to: "/auth" });
+  }, [user, loading, isAuthRoute, router]);
+
+  if (loading) {
+    return (
+      <div className="relative z-10 flex min-h-screen items-center justify-center text-sm text-muted-foreground">
+        Carregando...
+      </div>
+    );
+  }
+
+  if (isAuthRoute) return <div className="relative z-10">{children}</div>;
+
+  if (!user) return null;
+
+  return (
+    <>
+      <div className="relative z-10 pb-24">{children}</div>
+      <BottomNav />
+    </>
   );
 }
