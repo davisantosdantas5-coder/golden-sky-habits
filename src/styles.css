@@ -38,62 +38,75 @@
   --color-bolt-foreground: var(--bolt-foreground);
   --color-cyan: var(--cyan);
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", "Montserrat", system-ui, sans-serif;
 }
 
 :root {
   --radius: 1.5rem;
-  /* Black & Gold + Cyan Neon — HabitBolt premium */
-  --background: oklch(0 0 0);
+  /* Luxury Tech — Deep Navy + Royal Gold */
+  --background: oklch(0.05 0.02 265);
   --foreground: oklch(1 0 0);
-  --card: oklch(0.16 0.005 240 / 0.55);
-  --card-solid: oklch(0.155 0 0);
+
+  /* Card surface: deep navy #020617 @ 80% */
+  --card: 2 6 23;                          /* used as rgb(var(--card) / 0.8) */
+  --card-solid: oklch(0.09 0.03 265);
   --card-foreground: oklch(1 0 0);
-  --popover: oklch(0.16 0.005 240);
+  --popover: oklch(0.09 0.03 265);
   --popover-foreground: oklch(1 0 0);
-  --primary: oklch(0.85 0.18 200);            /* Cyan neon */
-  --primary-foreground: oklch(0.08 0.02 220);
-  --secondary: oklch(0.18 0.005 240);
+
+  /* Gold tokens */
+  --gold: oklch(0.86 0.17 90);             /* ~#FFD700 */
+  --gold-deep: oklch(0.7 0.15 80);         /* ~#B8860B */
+  --primary: var(--gold);
+  --primary-foreground: oklch(0.1 0.02 265);
+
+  --secondary: oklch(0.14 0.03 265);
   --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.16 0 0);
-  --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.22 0.04 200);
+  --muted: oklch(0.12 0.02 265);
+  --muted-foreground: oklch(0.72 0.02 265);
+  --accent: oklch(0.18 0.03 265);
   --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.98 0.01 0);
-  --border: oklch(0.85 0.18 200 / 0.18);
-  --input: oklch(0.2 0.005 240);
-  --ring: oklch(0.85 0.18 200);
-  --success: oklch(0.72 0.18 155);
-  --success-foreground: oklch(0.13 0.02 255);
-  --water: oklch(0.78 0.18 220);
-  --water-foreground: oklch(1 0 0);
-  --streak: oklch(0.92 0.2 95);
-  --neon: oklch(0.85 0.2 200);
-  --cyan: oklch(0.85 0.2 200);
-  --bolt: oklch(0.92 0.2 95);
-  --bolt-foreground: oklch(0.12 0.04 80);
+  --border: oklch(0.86 0.17 90 / 0.25);
+  --input: oklch(0.14 0.03 265);
+  --ring: var(--gold);
+  --success: oklch(0.78 0.16 145);
+  --success-foreground: oklch(0.1 0.02 265);
 
-  --gradient-bolt: linear-gradient(135deg, oklch(0.96 0.18 100), oklch(0.86 0.22 85));
-  --shadow-bolt: 0 0 24px oklch(0.92 0.22 95 / 0.55), 0 0 60px oklch(0.92 0.22 95 / 0.35);
-  --shadow-cyan: 0 0 24px oklch(0.85 0.22 200 / 0.5), 0 0 60px oklch(0.85 0.22 200 / 0.3);
+  /* Re-route legacy semantic colors to gold so existing components inherit Luxury look */
+  --water: var(--gold);
+  --water-foreground: oklch(0.1 0.02 265);
+  --streak: var(--gold);
+  --neon: var(--gold);
+  --cyan: var(--gold);
+  --bolt: var(--gold);
+  --bolt-foreground: oklch(0.1 0.02 265);
 
-  --chart-1: oklch(0.85 0.2 200);
-  --chart-2: oklch(0.92 0.2 95);
-  --chart-3: oklch(0.78 0.16 280);
-  --chart-4: oklch(0.65 0.18 160);
-  --chart-5: oklch(0.5 0.05 80);
+  --gradient-bolt: linear-gradient(135deg, oklch(0.92 0.17 95) 0%, oklch(0.7 0.15 80) 100%);
+  --gradient-gold-border: linear-gradient(135deg, oklch(0.92 0.18 95) 0%, oklch(0.7 0.15 80) 100%);
+  --shadow-bolt: 0 0 18px oklch(0.86 0.17 90 / 0.45), 0 0 38px oklch(0.86 0.17 90 / 0.2);
+  --shadow-cyan: 0 0 18px oklch(0.86 0.17 90 / 0.4);
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.88 0.2 200), oklch(0.7 0.22 220));
-  --gradient-water: linear-gradient(180deg, oklch(0.82 0.2 215), oklch(0.55 0.24 245));
-  --gradient-card: linear-gradient(145deg, oklch(0.16 0.01 230 / 0.7), oklch(0.1 0.005 240 / 0.55));
-  --shadow-glow: 0 0 32px oklch(0.85 0.22 200 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.06);
-  --shadow-card: 0 8px 40px -8px oklch(0 0 0 / 0.7), inset 0 1px 0 oklch(1 0 0 / 0.04);
+  --chart-1: oklch(0.86 0.17 90);
+  --chart-2: oklch(0.7 0.15 80);
+  --chart-3: oklch(0.55 0.1 75);
+  --chart-4: oklch(0.78 0.14 95);
+  --chart-5: oklch(0.45 0.08 80);
+
+  --gradient-primary: linear-gradient(135deg, oklch(0.92 0.17 95), oklch(0.7 0.15 80));
+  --gradient-water: linear-gradient(180deg, oklch(0.92 0.17 95), oklch(0.65 0.14 80));
+  --gradient-card: linear-gradient(145deg, rgb(2 6 23 / 0.85), rgb(2 6 23 / 0.7));
+  --shadow-glow: 0 0 32px oklch(0.86 0.17 90 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.05);
+  --shadow-card:
+    0 12px 50px -16px rgb(0 0 0 / 0.8),
+    inset 0 1px 0 oklch(1 0 0 / 0.06),
+    inset 0 0 24px rgb(0 0 0 / 0.45);
 }
 
 .dark {
-  --background: oklch(0 0 0);
+  --background: oklch(0.05 0.02 265);
   --foreground: oklch(1 0 0);
 }
 
@@ -107,61 +120,103 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-family: "Inter", "Montserrat", ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
     letter-spacing: -0.01em;
-    background-color: #000;
+    background-color: #020617;
     min-height: 100vh;
   }
-
   h1, h2, h3 {
-    font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
+    font-family: "Inter", "Montserrat", system-ui, sans-serif;
     letter-spacing: -0.025em;
   }
 }
 
 @layer utilities {
+  /* Luxury glass card — deep navy #020617 @ 80%, blur 20px, gold gradient border */
   .glass,
   .glass-bolt,
   .graphite-card {
-    background: rgba(18, 18, 18, 0.8);
-    backdrop-filter: blur(24px) saturate(140%);
-    -webkit-backdrop-filter: blur(24px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+    background: rgb(2 6 23 / 0.8);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
     border-radius: 24px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
     box-shadow:
-      0 12px 40px -16px rgba(0, 0, 0, 0.85),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      0 12px 50px -16px rgb(0 0 0 / 0.8),
+      inset 0 1px 0 oklch(1 0 0 / 0.06),
+      inset 0 0 24px rgb(0 0 0 / 0.4);
   }
-  .text-glow-bolt {
-    text-shadow: 0 0 10px oklch(0.92 0.22 95 / 0.4);
+  /* Double-line gold gradient border via masked pseudo-element */
+  .glass::before,
+  .glass-bolt::before,
+  .graphite-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
   }
+  .glass::after,
+  .glass-bolt::after,
+  .graphite-card::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border-radius: calc(24px - 3px);
+    padding: 1px;
+    background: linear-gradient(135deg, oklch(0.92 0.18 95 / 0.55), oklch(0.7 0.15 80 / 0.35));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+  .text-glow-bolt,
   .text-glow-cyan {
-    text-shadow: 0 0 10px oklch(0.85 0.22 200 / 0.45);
+    text-shadow: 0 0 10px oklch(0.86 0.18 90 / 0.5);
   }
+
+  .gold-icon {
+    filter: drop-shadow(0 0 6px oklch(0.9 0.18 90 / 0.55));
+  }
+
   .press {
     transition: transform 120ms ease;
   }
   .press:active { transform: scale(0.96); }
 
-  /* Subtle gold CTA — glow only on the button itself, no halo bleed */
   .btn-gold {
-    background: linear-gradient(135deg, oklch(0.94 0.18 100) 0%, oklch(0.82 0.2 85) 100%);
-    color: oklch(0.12 0.04 80);
+    background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+    color: oklch(0.1 0.02 265);
     border-radius: 24px;
-    border: 1px solid oklch(0.92 0.2 95 / 0.4);
-    box-shadow: 0 6px 18px -8px oklch(0.92 0.22 95 / 0.45), inset 0 1px 0 oklch(1 0 0 / 0.5);
+    border: 1px solid oklch(0.86 0.18 90 / 0.6);
+    box-shadow:
+      0 6px 18px -8px oklch(0.86 0.18 90 / 0.55),
+      inset 0 1px 0 oklch(1 0 0 / 0.45);
     transition: transform 180ms ease, filter 180ms ease;
   }
   .btn-gold:hover { filter: brightness(1.06); }
   .btn-gold:active { transform: scale(0.96); }
 
-  /* Deep-space background — pure black with very subtle color hints */
+  /* Deep-space starry background */
   .deep-space {
     background:
-      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(56, 189, 248, 0.06), transparent 70%),
-      radial-gradient(ellipse 50% 35% at 90% 100%, rgba(139, 92, 246, 0.05), transparent 70%),
-      #000;
+      radial-gradient(ellipse 60% 40% at 50% 0%, oklch(0.86 0.17 90 / 0.05), transparent 70%),
+      radial-gradient(ellipse 50% 35% at 90% 100%, oklch(0.7 0.15 80 / 0.05), transparent 70%),
+      #020617;
   }
 }
 
@@ -174,7 +229,7 @@
   100% { transform: translate3d(-50%, 0, 0); }
 }
 @keyframes pulse-bolt {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.92 0.22 95 / 0.55), 0 0 24px oklch(0.92 0.22 95 / 0.45); }
-  50%      { box-shadow: 0 0 0 14px oklch(0.92 0.22 95 / 0), 0 0 36px oklch(0.92 0.22 95 / 0.7); }
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.86 0.18 90 / 0.55), 0 0 24px oklch(0.86 0.18 90 / 0.45); }
+  50%      { box-shadow: 0 0 0 14px oklch(0.86 0.18 90 / 0), 0 0 36px oklch(0.86 0.18 90 / 0.7); }
 }
 .animate-pulse-bolt { animation: pulse-bolt 1.4s ease-out 1; }
