@@ -9,8 +9,44 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TarefasRouteImport } from './routes/tarefas'
+import { Route as MetasRouteImport } from './routes/metas'
+import { Route as HabitosRouteImport } from './routes/habitos'
+import { Route as FocoRouteImport } from './routes/foco'
+import { Route as FinancasRouteImport } from './routes/financas'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TarefasRoute = TarefasRouteImport.update({
+  id: '/tarefas',
+  path: '/tarefas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetasRoute = MetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HabitosRoute = HabitosRouteImport.update({
+  id: '/habitos',
+  path: '/habitos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FocoRoute = FocoRouteImport.update({
+  id: '/foco',
+  path: '/foco',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinancasRoute = FinancasRouteImport.update({
+  id: '/financas',
+  path: '/financas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +55,109 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/financas': typeof FinancasRoute
+  '/foco': typeof FocoRoute
+  '/habitos': typeof HabitosRoute
+  '/metas': typeof MetasRoute
+  '/tarefas': typeof TarefasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/financas': typeof FinancasRoute
+  '/foco': typeof FocoRoute
+  '/habitos': typeof HabitosRoute
+  '/metas': typeof MetasRoute
+  '/tarefas': typeof TarefasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/financas': typeof FinancasRoute
+  '/foco': typeof FocoRoute
+  '/habitos': typeof HabitosRoute
+  '/metas': typeof MetasRoute
+  '/tarefas': typeof TarefasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/financas'
+    | '/foco'
+    | '/habitos'
+    | '/metas'
+    | '/tarefas'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/financas' | '/foco' | '/habitos' | '/metas' | '/tarefas'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/financas'
+    | '/foco'
+    | '/habitos'
+    | '/metas'
+    | '/tarefas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  FinancasRoute: typeof FinancasRoute
+  FocoRoute: typeof FocoRoute
+  HabitosRoute: typeof HabitosRoute
+  MetasRoute: typeof MetasRoute
+  TarefasRoute: typeof TarefasRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tarefas': {
+      id: '/tarefas'
+      path: '/tarefas'
+      fullPath: '/tarefas'
+      preLoaderRoute: typeof TarefasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/metas': {
+      id: '/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof MetasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/habitos': {
+      id: '/habitos'
+      path: '/habitos'
+      fullPath: '/habitos'
+      preLoaderRoute: typeof HabitosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/foco': {
+      id: '/foco'
+      path: '/foco'
+      fullPath: '/foco'
+      preLoaderRoute: typeof FocoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/financas': {
+      id: '/financas'
+      path: '/financas'
+      fullPath: '/financas'
+      preLoaderRoute: typeof FinancasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +170,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  FinancasRoute: FinancasRoute,
+  FocoRoute: FocoRoute,
+  HabitosRoute: HabitosRoute,
+  MetasRoute: MetasRoute,
+  TarefasRoute: TarefasRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
