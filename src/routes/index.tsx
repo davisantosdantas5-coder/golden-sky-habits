@@ -1,17 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowRight, Flame, Droplet, CheckSquare, Target } from "lucide-react";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ArrowUpRight, Droplet, Flame, Target, Zap } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { WaterCard } from "@/components/WaterCard";
-import { useHabits, useWater, useTasks, useGoals, useWellness, WATER_GOAL } from "@/lib/store";
+import { useGoals, useHabits, useTasks, useWater, useWellness, WATER_GOAL } from "@/lib/store";
 import { isCheckedToday, streak } from "@/lib/habits";
+import { dayLabel, lastNDays } from "@/lib/storage";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
   head: () => ({
     meta: [
       { title: "HabitBolt — Dashboard" },
-      { name: "description", content: "Visão geral diária: hábitos, hidratação, tarefas e metas." },
+      { name: "description", content: "Painel tático Luxury Tech: hábitos, XP, hidratação e metas." },
     ],
   }),
 });
@@ -33,12 +34,17 @@ function Dashboard() {
           goals.reduce((s, g) => s + Math.min(100, (g.current / Math.max(1, g.target)) * 100), 0) / goals.length,
         );
 
-  const stats = [
-    { label: "Hábitos hoje", value: `${checkedToday}/${habits.length || 0}`, icon: Flame, to: "/habitos" as const },
-    { label: "Tarefas abertas", value: tasksOpen, icon: CheckSquare, to: "/tarefas" as const },
-    { label: "Metas", value: `${goalsAvg}%`, icon: Target, to: "/metas" as const },
-    { label: "Hidratação", value: `${Math.round((water.today / WATER_GOAL) * 100)}%`, icon: Droplet, to: "/" as const },
-  ];
+  // XP: 12 pts per check-in over the last 7 days
+  const days = lastNDays(7);
+  const xpData = days.map((iso) => {
+    const completed = habits.filter((h) => h.history.includes(iso)).length;
+    return { day: dayLabel(iso), xp: completed * 12 };
+  });
+  const xpTotal = xpData.reduce((s, d) => s + d.xp, 0);
+  const xpToday = xpData[xpData.length - 1]?.xp ?? 0;
+
+  const waterPct = Math.min(100, Math.round((water.today / WATER_GOAL) * 100));
+  const waterL = (water.today / 1000).toFixed(2);
 
   const now = new Date();
   const weekday = now.toLocaleDateString("pt-BR", { weekday: "long" }).toUpperCase();
@@ -46,93 +52,254 @@ function Dashboard() {
   const monthYear = now.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-8 space-y-6">
+    <main className="mx-auto max-w-3xl px-4 py-6 space-y-4">
       <AppHeader title="HabitBolt" />
 
-      {/* Date hero card — graphite #121212 @ 80% with backdrop-blur */}
+      {/* HERO — master card, irradia luz dourada nos cards de baixo */}
       <motion.section
-        initial={{ opacity: 0, y: 14 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="graphite-card tilt rounded-3xl p-6 flex items-center justify-between"
+        className="luxe-card luxe-hero p-6 flex items-center justify-between"
       >
         <div>
-          <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground font-medium">
-            {weekday}
-          </p>
-          <p className="mt-1 text-6xl font-extrabold tabular-nums tracking-tighter text-white leading-none" style={{ fontFamily: "'Space Grotesk', system-ui" }}>
+          <p className="caps-gold">{weekday}</p>
+          <p className="mt-1 font-mono text-7xl font-bold tabular-nums tracking-tighter text-white leading-[0.9]">
             {day}
           </p>
-          <p className="mt-2 text-xs text-muted-foreground capitalize font-light">{monthYear}</p>
+          <p className="mt-2 caps-mute capitalize">{monthYear}</p>
         </div>
         <div className="text-right">
-          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Sequência</div>
-          <div className="mt-1 text-3xl font-extrabold tabular-nums text-[color:var(--bolt)] text-glow-bolt">
-            {bestStreak}<span className="text-base font-bold text-muted-foreground ml-0.5">d</span>
-          </div>
+          <p className="caps-gold">Sequência</p>
+          <p className="mt-1 font-mono text-4xl font-bold tabular-nums text-[color:var(--gold)] text-glow-bolt">
+            {bestStreak}
+            <span className="text-base font-medium text-muted-foreground ml-0.5">d</span>
+          </p>
         </div>
       </motion.section>
 
-      <div className="grid grid-cols-2 gap-4">
-        {stats.map((s, i) => (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06, duration: 0.35 }}
-          >
-            <Link
-              to={s.to}
-              className="press graphite-card block p-5"
-            >
-              <div className="flex items-center justify-between">
-                <div className="size-9 rounded-2xl bg-[color:var(--cyan)]/10 border border-[color:var(--cyan)]/20 flex items-center justify-center">
-                  <s.icon className="size-[18px] text-[color:var(--cyan)]" strokeWidth={1.5} />
-                </div>
-                <ArrowRight className="size-4 text-muted-foreground" strokeWidth={1.5} />
-              </div>
-              <div className="mt-4 text-3xl font-extrabold tabular-nums tracking-tight text-white">{s.value}</div>
-              <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-medium mt-1">{s.label}</div>
+      {/* BENTO GRID — densidade tática */}
+      <div className="grid grid-cols-6 gap-3">
+        {/* XP — wide area chart */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.4 }}
+          className="luxe-card col-span-6 p-5"
+        >
+          <header className="flex items-start justify-between mb-3">
+            <div>
+              <p className="caps-gold flex items-center gap-1.5">
+                <Zap className="size-3 gold-icon" /> XP · 7D
+              </p>
+              <p className="font-mono text-4xl font-bold text-white tabular-nums tracking-tight mt-1">
+                {xpTotal}
+                <span className="text-sm text-muted-foreground font-medium ml-1.5">pts</span>
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="caps-mute">Hoje</p>
+              <p className="font-mono text-xl text-[color:var(--gold)] tabular-nums mt-0.5">+{xpToday}</p>
+            </div>
+          </header>
+
+          <div className="h-28 -mx-2 -mb-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={xpData} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="xpFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FFD700" stopOpacity={0.55} />
+                    <stop offset="60%" stopColor="#B8860B" stopOpacity={0.18} />
+                    <stop offset="100%" stopColor="#020617" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="day" stroke="oklch(0.55 0.02 265)" fontSize={9} tickLine={false} axisLine={false} />
+                <YAxis hide domain={[0, "dataMax + 6"]} />
+                <Tooltip
+                  cursor={{ stroke: "#FFD700", strokeOpacity: 0.3, strokeWidth: 1 }}
+                  contentStyle={{
+                    background: "rgb(2 6 23 / 0.95)",
+                    border: "1px solid rgb(255 215 0 / 0.4)",
+                    borderRadius: 12,
+                    fontSize: 11,
+                    color: "white",
+                  }}
+                  formatter={(v: number) => [`${v} XP`, ""]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="xp"
+                  stroke="#FFD700"
+                  strokeWidth={1.25}
+                  fill="url(#xpFill)"
+                  dot={false}
+                  activeDot={{ r: 3, fill: "#FFD700", stroke: "#020617", strokeWidth: 1 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.section>
+
+        {/* WATER — medium card with ring progress hugging inner border */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+          className="luxe-card col-span-4 p-5 relative overflow-hidden"
+        >
+          <RingBorder pct={waterPct} />
+          <div className="relative">
+            <p className="caps-gold flex items-center gap-1.5">
+              <Droplet className="size-3 gold-icon" fill="currentColor" /> Hidratação
+            </p>
+            <p className="font-mono text-4xl font-bold text-white tabular-nums tracking-tight mt-1">
+              {waterL}
+              <span className="text-sm text-muted-foreground font-medium ml-1">L</span>
+            </p>
+            <div className="mt-3 flex items-end justify-between">
+              <p className="caps-mute">Meta · 2.0L</p>
+              <p className="font-mono text-lg text-[color:var(--gold)] tabular-nums">{waterPct}%</p>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => water.add(250)}
+                className="press flex-1 rounded-xl border border-[color:var(--gold)]/30 bg-white/[0.03] py-2 text-xs font-semibold text-[color:var(--gold)] hover:bg-[color:var(--gold)]/10 transition-colors"
+              >
+                +250
+              </button>
+              <button
+                onClick={() => water.add(500)}
+                className="press flex-1 rounded-xl border border-[color:var(--gold)]/30 bg-white/[0.03] py-2 text-xs font-semibold text-[color:var(--gold)] hover:bg-[color:var(--gold)]/10 transition-colors"
+              >
+                +500
+              </button>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* HABITS — compact tile */}
+        <CompactTile
+          to="/habitos"
+          icon={Flame}
+          label="Hábitos"
+          value={`${checkedToday}/${habits.length || 0}`}
+          delay={0.15}
+        />
+
+        {/* TASKS */}
+        <CompactTile
+          to="/tarefas"
+          icon={ArrowUpRight}
+          label="Tarefas"
+          value={tasksOpen}
+          delay={0.2}
+          span={3}
+        />
+
+        {/* GOALS */}
+        <CompactTile to="/metas" icon={Target} label="Metas" value={`${goalsAvg}%`} delay={0.25} span={3} />
+
+        {/* WELLNESS — wide bottom strip */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="luxe-card col-span-6 p-5"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <p className="caps-gold">Bem-estar · Hoje</p>
+            <Link to="/habitos" className="caps-mute hover:text-[color:var(--gold)] transition-colors">
+              Atualizar →
             </Link>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="space-y-6">
-        <WaterCard amount={water.today} goal={WATER_GOAL} onAdd={water.add} onReset={water.reset} />
-
-        <section className="glass rounded-3xl p-6">
-          <h2 className="text-lg font-bold mb-4">Bem-estar de hoje</h2>
-          <div className="grid grid-cols-3 gap-3 text-center">
+          </div>
+          <div className="grid grid-cols-3 gap-3">
             <Mini label="Sono" value={`${wellness.sleep}h`} />
             <Mini label="Foco" value={wellness.productivity} />
             <Mini label="Humor" value={wellness.mood} />
           </div>
-          <Link
-            to="/habitos"
-            className="press mt-4 flex items-center justify-center gap-1.5 text-xs text-[color:var(--cyan)] font-semibold"
-          >
-            Atualizar check-in <ArrowRight className="size-3.5" />
-          </Link>
-        </section>
-
-        <section className="glass-bolt rounded-3xl p-6">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-bold">Maior sequência</h2>
-            <span className="text-3xl font-extrabold text-[color:var(--bolt)] text-glow-bolt tabular-nums">{bestStreak}d</span>
-          </div>
-          <p className="text-xs text-muted-foreground font-light">Continue marcando seus hábitos para manter a chama acesa.</p>
-        </section>
+        </motion.section>
       </div>
     </main>
   );
 }
 
+function CompactTile({
+  to,
+  icon: Icon,
+  label,
+  value,
+  delay,
+  span = 3,
+}: {
+  to: "/habitos" | "/tarefas" | "/metas";
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string | number;
+  delay: number;
+  span?: number;
+}) {
+  const colSpan = span === 3 ? "col-span-3" : "col-span-2";
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.4 }}
+      className={colSpan}
+    >
+      <Link to={to} className="press luxe-card block p-4 h-full">
+        <div className="flex items-center justify-between">
+          <Icon className="size-4 text-[color:var(--gold)] gold-icon" />
+          <ArrowUpRight className="size-3 text-muted-foreground" />
+        </div>
+        <p className="font-mono text-2xl font-bold text-white tabular-nums tracking-tight mt-3">{value}</p>
+        <p className="caps-mute mt-0.5">{label}</p>
+      </Link>
+    </motion.div>
+  );
+}
+
 function Mini({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-2xl bg-white/5 border border-white/10 p-3">
-      <div className="text-2xl font-extrabold tabular-nums text-white">{value}</div>
-      <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-medium mt-1">{label}</div>
+    <div className="rounded-xl bg-white/[0.02] border border-[color:var(--gold)]/15 p-3 text-center">
+      <p className="font-mono text-xl font-bold text-white tabular-nums">{value}</p>
+      <p className="caps-mute mt-1">{label}</p>
     </div>
+  );
+}
+
+/** SVG ring that hugs the inner border with gold gradient progress */
+function RingBorder({ pct }: { pct: number }) {
+  return (
+    <svg
+      aria-hidden
+      className="absolute inset-1.5 pointer-events-none"
+      width="calc(100% - 12px)"
+      height="calc(100% - 12px)"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+    >
+      <defs>
+        <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#FFD700" />
+          <stop offset="100%" stopColor="#B8860B" />
+        </linearGradient>
+      </defs>
+      <rect
+        x="0.5"
+        y="0.5"
+        width="99"
+        height="99"
+        rx="6"
+        ry="6"
+        fill="none"
+        stroke="url(#ringGold)"
+        strokeWidth="0.6"
+        strokeLinecap="round"
+        pathLength={100}
+        strokeDasharray={`${pct} ${100 - pct}`}
+        vectorEffect="non-scaling-stroke"
+        style={{ filter: "drop-shadow(0 0 4px rgb(255 215 0 / 0.6))" }}
+      />
+    </svg>
   );
 }
