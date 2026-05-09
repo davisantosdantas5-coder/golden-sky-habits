@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowUpRight, Droplet, Flame, Target, Zap } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { useGoals, useHabits, useTasks, useWater, useWellness, WATER_GOAL } from "@/lib/store";
+import { SmartWaterCard } from "@/components/SmartWaterCard";
+import { useGoals, useHabits, useTasks, useWellness } from "@/lib/store";
 import { isCheckedToday, streak } from "@/lib/habits";
 import { dayLabel, lastNDays } from "@/lib/storage";
 
