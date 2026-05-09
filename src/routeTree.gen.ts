@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TarefasRouteImport } from './routes/tarefas'
+import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as HabitosRouteImport } from './routes/habitos'
 import { Route as FocoRouteImport } from './routes/foco'
@@ -20,6 +21,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const TarefasRoute = TarefasRouteImport.update({
   id: '/tarefas',
   path: '/tarefas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MetasRoute = MetasRouteImport.update({
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/foco': typeof FocoRoute
   '/habitos': typeof HabitosRoute
   '/metas': typeof MetasRoute
+  '/perfil': typeof PerfilRoute
   '/tarefas': typeof TarefasRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/foco': typeof FocoRoute
   '/habitos': typeof HabitosRoute
   '/metas': typeof MetasRoute
+  '/perfil': typeof PerfilRoute
   '/tarefas': typeof TarefasRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/foco': typeof FocoRoute
   '/habitos': typeof HabitosRoute
   '/metas': typeof MetasRoute
+  '/perfil': typeof PerfilRoute
   '/tarefas': typeof TarefasRoute
 }
 export interface FileRouteTypes {
@@ -90,9 +99,18 @@ export interface FileRouteTypes {
     | '/foco'
     | '/habitos'
     | '/metas'
+    | '/perfil'
     | '/tarefas'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/financas' | '/foco' | '/habitos' | '/metas' | '/tarefas'
+  to:
+    | '/'
+    | '/auth'
+    | '/financas'
+    | '/foco'
+    | '/habitos'
+    | '/metas'
+    | '/perfil'
+    | '/tarefas'
   id:
     | '__root__'
     | '/'
@@ -101,6 +119,7 @@ export interface FileRouteTypes {
     | '/foco'
     | '/habitos'
     | '/metas'
+    | '/perfil'
     | '/tarefas'
   fileRoutesById: FileRoutesById
 }
@@ -111,6 +130,7 @@ export interface RootRouteChildren {
   FocoRoute: typeof FocoRoute
   HabitosRoute: typeof HabitosRoute
   MetasRoute: typeof MetasRoute
+  PerfilRoute: typeof PerfilRoute
   TarefasRoute: typeof TarefasRoute
 }
 
@@ -121,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/tarefas'
       fullPath: '/tarefas'
       preLoaderRoute: typeof TarefasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/metas': {
@@ -175,8 +202,19 @@ const rootRouteChildren: RootRouteChildren = {
   FocoRoute: FocoRoute,
   HabitosRoute: HabitosRoute,
   MetasRoute: MetasRoute,
+  PerfilRoute: PerfilRoute,
   TarefasRoute: TarefasRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
