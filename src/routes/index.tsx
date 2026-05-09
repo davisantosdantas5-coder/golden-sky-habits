@@ -44,9 +44,6 @@ function Dashboard() {
   const xpTotal = xpData.reduce((s, d) => s + d.xp, 0);
   const xpToday = xpData[xpData.length - 1]?.xp ?? 0;
 
-  const waterPct = Math.min(100, Math.round((water.today / WATER_GOAL) * 100));
-  const waterL = (water.today / 1000).toFixed(2);
-
   const now = new Date();
   const weekday = now.toLocaleDateString("pt-BR", { weekday: "long" }).toUpperCase();
   const day = now.getDate();
