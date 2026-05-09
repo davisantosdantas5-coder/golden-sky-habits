@@ -20,7 +20,7 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const { habits } = useHabits();
-  const water = useWater();
+  
   const { tasks } = useTasks();
   const { goals } = useGoals();
   const { today: wellness } = useWellness();
