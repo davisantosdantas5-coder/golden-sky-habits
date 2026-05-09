@@ -148,14 +148,58 @@ function Dashboard() {
           <SmartWaterCard />
         </motion.div>
 
-        {/* HABITS — compact tile */}
-        <CompactTile
-          to="/habitos"
-          icon={Flame}
-          label="Hábitos"
-          value={`${checkedToday}/${habits.length || 0}`}
-          delay={0.15}
-        />
+        {/* HABITS WEEKLY — 3D bar chart */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.13, duration: 0.4 }}
+          className="luxe-card col-span-6 p-5"
+        >
+          <header className="flex items-start justify-between mb-4">
+            <div>
+              <p className="caps-gold flex items-center gap-1.5">
+                <Flame className="size-3 gold-icon" /> Hábitos · 7D
+              </p>
+              <p className="font-mono text-3xl font-bold text-white tabular-nums tracking-tight mt-1">
+                {checkedToday}
+                <span className="text-sm text-muted-foreground font-medium ml-1">
+                  / {habits.length || 0}
+                </span>
+              </p>
+            </div>
+            <Link
+              to="/habitos"
+              className="caps-mute hover:text-[color:var(--gold)] transition-colors"
+            >
+              Ver →
+            </Link>
+          </header>
+          <div className="flex items-end justify-between gap-2 h-24 px-1">
+            {days.map((iso) => {
+              const completed = habits.filter((h) => h.history.includes(iso)).length;
+              const pct = habits.length === 0 ? 0 : (completed / habits.length) * 100;
+              const isToday = iso === days[days.length - 1];
+              return (
+                <div key={iso} className="flex flex-1 flex-col items-center gap-1.5">
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: `${Math.max(6, pct)}%` }}
+                    transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="bento-bar w-full max-w-[18px]"
+                    style={isToday ? { filter: "brightness(1.15)" } : { opacity: 0.55 }}
+                  />
+                  <span
+                    className={`caps-mute text-[9px] ${
+                      isToday ? "text-[color:var(--gold)]" : ""
+                    }`}
+                  >
+                    {dayLabel(iso).slice(0, 1)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
 
         {/* TASKS */}
         <CompactTile
@@ -163,12 +207,34 @@ function Dashboard() {
           icon={ArrowUpRight}
           label="Tarefas"
           value={tasksOpen}
-          delay={0.2}
+          delay={0.18}
           span={3}
         />
 
-        {/* GOALS */}
-        <CompactTile to="/metas" icon={Target} label="Metas" value={`${goalsAvg}%`} delay={0.25} span={3} />
+        {/* GOALS — Neon double-stroke ring */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22, duration: 0.4 }}
+          className="col-span-3"
+        >
+          <Link to="/metas" className="press luxe-card relative block p-4 h-full overflow-hidden">
+            <div className="flex items-center justify-between">
+              <Target className="size-4 text-[color:var(--gold)] gold-icon" />
+              <ArrowUpRight className="size-3 text-muted-foreground" />
+            </div>
+            <div className="mt-2 flex items-center gap-3">
+              <NeonRing pct={goalsAvg} />
+              <div>
+                <p className="font-mono text-2xl font-bold text-white tabular-nums tracking-tight">
+                  {goalsAvg}
+                  <span className="text-sm text-muted-foreground ml-0.5">%</span>
+                </p>
+                <p className="caps-mute mt-0.5">Metas</p>
+              </div>
+            </div>
+          </Link>
+        </motion.div>
 
         {/* WELLNESS — wide bottom strip */}
         <motion.section
