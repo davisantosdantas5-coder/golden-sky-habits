@@ -36,18 +36,33 @@ export function SmartWaterCard() {
 
   const setGoalMl = (n: number) => setGoalMlRaw(clampGoal(n));
 
-  const days = useMemo(() => lastNDays(7), []);
+  // Build current calendar week Sun -> Sat (local time)
   const today = todayKey();
+  const days = useMemo(() => {
+    const now = new Date();
+    const sunday = new Date(now);
+    sunday.setDate(now.getDate() - now.getDay()); // back to Sunday
+    const out: string[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(sunday);
+      d.setDate(sunday.getDate() + i);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      out.push(`${y}-${m}-${day}`);
+    }
+    return out;
+  }, [today]);
 
   const { data: weekMap = {} } = useQuery({
-    queryKey: ["water-week", user?.id, days[0], today, water.today],
+    queryKey: ["water-week", user?.id, days[0], days[6], water.today],
     enabled: !!user?.id,
     queryFn: async (): Promise<Record<string, number>> => {
       const { data, error } = await supabase
         .from("water_intake")
         .select("date, amount_ml")
         .gte("date", days[0])
-        .lte("date", today);
+        .lte("date", days[6]);
       if (error) throw error;
       const out: Record<string, number> = {};
       (data ?? []).forEach((r: any) => {
