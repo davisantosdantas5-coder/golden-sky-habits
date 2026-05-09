@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ArrowUpRight, Droplet, Flame, Target, Zap } from "lucide-react";
+import { ArrowUpRight, Flame, Target, Zap } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { useGoals, useHabits, useTasks, useWater, useWellness, WATER_GOAL } from "@/lib/store";
+import { SmartWaterCard } from "@/components/SmartWaterCard";
+import { useGoals, useHabits, useTasks, useWellness } from "@/lib/store";
 import { isCheckedToday, streak } from "@/lib/habits";
 import { dayLabel, lastNDays } from "@/lib/storage";
 
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const { habits } = useHabits();
-  const water = useWater();
+  
   const { tasks } = useTasks();
   const { goals } = useGoals();
   const { today: wellness } = useWellness();
@@ -42,9 +43,6 @@ function Dashboard() {
   });
   const xpTotal = xpData.reduce((s, d) => s + d.xp, 0);
   const xpToday = xpData[xpData.length - 1]?.xp ?? 0;
-
-  const waterPct = Math.min(100, Math.round((water.today / WATER_GOAL) * 100));
-  const waterL = (water.today / 1000).toFixed(2);
 
   const now = new Date();
   const weekday = now.toLocaleDateString("pt-BR", { weekday: "long" }).toUpperCase();
@@ -140,42 +138,15 @@ function Dashboard() {
           </div>
         </motion.section>
 
-        {/* WATER — medium card with ring progress hugging inner border */}
-        <motion.section
+        {/* WATER — Smart weekly tracker with neon flow */}
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="luxe-card col-span-4 p-5 relative overflow-hidden"
+          className="col-span-6"
         >
-          <RingBorder pct={waterPct} />
-          <div className="relative">
-            <p className="caps-gold flex items-center gap-1.5">
-              <Droplet className="size-3 gold-icon" fill="currentColor" /> Hidratação
-            </p>
-            <p className="font-mono text-4xl font-bold text-white tabular-nums tracking-tight mt-1">
-              {waterL}
-              <span className="text-sm text-muted-foreground font-medium ml-1">L</span>
-            </p>
-            <div className="mt-3 flex items-end justify-between">
-              <p className="caps-mute">Meta · 2.0L</p>
-              <p className="font-mono text-lg text-[color:var(--gold)] tabular-nums">{waterPct}%</p>
-            </div>
-            <div className="mt-3 flex gap-2">
-              <button
-                onClick={() => water.add(250)}
-                className="press flex-1 rounded-xl border border-[color:var(--gold)]/30 bg-white/[0.03] py-2 text-xs font-semibold text-[color:var(--gold)] hover:bg-[color:var(--gold)]/10 transition-colors"
-              >
-                +250
-              </button>
-              <button
-                onClick={() => water.add(500)}
-                className="press flex-1 rounded-xl border border-[color:var(--gold)]/30 bg-white/[0.03] py-2 text-xs font-semibold text-[color:var(--gold)] hover:bg-[color:var(--gold)]/10 transition-colors"
-              >
-                +500
-              </button>
-            </div>
-          </div>
-        </motion.section>
+          <SmartWaterCard />
+        </motion.div>
 
         {/* HABITS — compact tile */}
         <CompactTile
