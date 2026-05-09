@@ -90,8 +90,7 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
-                  // wait for menu close animation, then open dialog
-                  setTimeout(() => setProfileOpen(true), 80);
+                  navigate({ to: "/perfil" });
                 }}
                 className="glow-gold-hover rounded-lg px-3 py-2.5 text-sm focus:bg-transparent cursor-pointer"
               >
@@ -101,7 +100,7 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
               <DropdownMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
-                  setTimeout(() => setPrefsOpen(true), 80);
+                  navigate({ to: "/preferencias" });
                 }}
                 className="glow-gold-hover rounded-lg px-3 py-2.5 text-sm focus:bg-transparent cursor-pointer"
               >
@@ -122,8 +121,6 @@ export function AppHeader({ title, subtitle }: { title: string; subtitle?: strin
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />
-          <PreferencesDialog open={prefsOpen} onOpenChange={setPrefsOpen} />
         </>
       )}
     </header>
