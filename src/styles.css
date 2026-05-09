@@ -278,6 +278,62 @@
     font-weight: 500;
   }
 
+  /* Glassmorphism dropdown — liquid gold border + gold hover glow */
+  .glass-dropdown {
+    position: relative;
+    background: rgb(2 6 23 / 0.85);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border-radius: 18px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    box-shadow:
+      0 20px 60px -20px rgb(0 0 0 / 0.9),
+      0 0 30px rgb(255 215 0 / 0.12),
+      inset 0 1px 0 oklch(1 0 0 / 0.06);
+  }
+  .glass-dropdown::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+  .glow-gold-hover {
+    transition: background 180ms ease, color 180ms ease, box-shadow 220ms ease;
+  }
+  .glow-gold-hover:hover,
+  .glow-gold-hover:focus {
+    background: linear-gradient(90deg, rgb(255 215 0 / 0.12), rgb(184 134 11 / 0.05));
+    color: #FFD700;
+    box-shadow: inset 0 0 18px rgb(255 215 0 / 0.18);
+  }
+
+  /* 3D bento bar — vertical gradient + base glow socket */
+  .bento-bar {
+    position: relative;
+    background: linear-gradient(180deg, rgb(255 215 0 / 0.95) 0%, rgb(184 134 11 / 0.7) 60%, rgb(139 105 20 / 0.4) 100%);
+    border-radius: 4px 4px 2px 2px;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.35),
+      inset 0 -1px 0 rgb(0 0 0 / 0.4),
+      0 0 10px rgb(255 215 0 / 0.45),
+      0 6px 14px -4px rgb(255 215 0 / 0.55);
+  }
+  .bento-bar::after {
+    content: "";
+    position: absolute;
+    left: -2px; right: -2px; bottom: -3px; height: 6px;
+    background: radial-gradient(ellipse at center, rgb(255 215 0 / 0.55), transparent 70%);
+    filter: blur(3px);
+    pointer-events: none;
+  }
+
   /* Deep-space starry background */
   .deep-space {
     background:
