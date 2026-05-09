@@ -77,7 +77,7 @@ function Dashboard() {
       </motion.section>
 
       {/* BENTO GRID — densidade tática */}
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-6 gap-4">
         {/* XP — wide area chart */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
