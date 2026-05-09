@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { LogOut, Settings, User as UserIcon, Zap } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,14 +8,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ProfileDialog } from "@/components/ProfileDialog";
-import { PreferencesDialog } from "@/components/PreferencesDialog";
 
 export function AppHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [prefsOpen, setPrefsOpen] = useState(false);
 
   const name =
     (user?.user_metadata?.display_name as string | undefined) ?? user?.email?.split("@")[0];
