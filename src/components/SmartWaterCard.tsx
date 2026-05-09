@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Droplet, Plus, Settings } from "lucide-react";
+import { Droplet, Plus, Settings, SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,12 +13,28 @@ import {
 } from "@/components/ui/popover";
 
 const WEEKDAYS_PT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const MIN_GOAL = 500;
+const MAX_GOAL = 10000;
+
+const clampGoal = (n: number) =>
+  Math.min(MAX_GOAL, Math.max(MIN_GOAL, Math.round(n)));
 
 export function SmartWaterCard() {
   const { user } = useAuth();
   const water = useWater();
-  const [goalMl, setGoalMl] = useLocalStorage<number>("habitbolt.water.goal", 2400);
+  const [goalMl, setGoalMlRaw] = useLocalStorage<number>(
+    "habitbolt.water.goal",
+    2400,
+  );
+  const [preferredMl, setPreferredMl] = useLocalStorage<number>(
+    "habitbolt.water.preferred",
+    250,
+  );
   const [pulseKey, setPulseKey] = useState(0);
+  const [customMl, setCustomMl] = useState<string>("");
+  const [customOpen, setCustomOpen] = useState(false);
+
+  const setGoalMl = (n: number) => setGoalMlRaw(clampGoal(n));
 
   const days = useMemo(() => lastNDays(7), []);
   const today = todayKey();
@@ -45,8 +61,18 @@ export function SmartWaterCard() {
   const todayPct = Math.min(100, Math.round((todayMl / goalMl) * 100));
 
   const handleAdd = (ml: number) => {
+    if (!ml || ml <= 0) return;
     water.add(ml);
     setPulseKey((k) => k + 1);
+  };
+
+  const submitCustom = () => {
+    const n = Math.round(Number(customMl));
+    if (Number.isFinite(n) && n > 0) {
+      handleAdd(n);
+      setCustomMl("");
+      setCustomOpen(false);
+    }
   };
 
   return (
@@ -61,7 +87,9 @@ export function SmartWaterCard() {
             {todayMl}
             <span className="text-xs text-muted-foreground font-medium ml-1">ml</span>
             <span className="text-base text-muted-foreground font-medium mx-1.5">/</span>
-            <span className="text-base text-[color:var(--gold)]">{(goalMl / 1000).toFixed(1)}L</span>
+            <span className="text-base text-[color:var(--gold)]">
+              {(goalMl / 1000).toFixed(goalMl % 1000 === 0 ? 1 : 1)}L
+            </span>
           </p>
         </div>
 
@@ -74,33 +102,62 @@ export function SmartWaterCard() {
               <Settings className="size-3.5 text-[color:var(--gold)] gold-icon" />
             </button>
           </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="w-56 luxe-card p-4 border-0"
-          >
-            <p className="caps-gold mb-2">Meta diária</p>
+          <PopoverContent align="end" className="w-64 luxe-card p-4 border-0">
+            <p className="caps-gold mb-2">Meta diária (ml)</p>
             <div className="flex items-center gap-2">
               <input
                 type="number"
-                min={500}
-                max={6000}
+                inputMode="numeric"
+                min={MIN_GOAL}
+                max={MAX_GOAL}
                 step={100}
                 value={goalMl}
-                onChange={(e) => setGoalMl(Math.max(500, Number(e.target.value) || 0))}
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  if (Number.isFinite(v)) setGoalMlRaw(v);
+                }}
+                onBlur={(e) => setGoalMl(Number(e.target.value) || MIN_GOAL)}
                 className="w-full font-mono bg-black/40 border border-[color:var(--gold)]/30 rounded-lg px-2 py-1.5 text-white text-sm tabular-nums focus:outline-none focus:border-[color:var(--gold)]"
               />
               <span className="text-xs text-muted-foreground">ml</span>
             </div>
-            <div className="flex gap-1.5 mt-2">
-              {[2000, 2400, 3000].map((g) => (
+            <p className="text-[10px] text-muted-foreground/70 mt-1.5 font-mono">
+              min {MIN_GOAL} · max {MAX_GOAL}
+            </p>
+            <div className="grid grid-cols-4 gap-1.5 mt-3">
+              {[2000, 2500, 2800, 3500].map((g) => (
                 <button
                   key={g}
                   onClick={() => setGoalMl(g)}
-                  className="flex-1 py-1 rounded-md text-[10px] font-mono border border-[color:var(--gold)]/20 text-muted-foreground hover:text-[color:var(--gold)] hover:border-[color:var(--gold)]/50 transition-colors"
+                  className={`py-1 rounded-md text-[10px] font-mono border transition-colors ${
+                    goalMl === g
+                      ? "border-[color:var(--gold)] text-[color:var(--gold)]"
+                      : "border-[color:var(--gold)]/20 text-muted-foreground hover:text-[color:var(--gold)] hover:border-[color:var(--gold)]/50"
+                  }`}
                 >
                   {g}
                 </button>
               ))}
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-[color:var(--gold)]/10">
+              <p className="caps-gold mb-2">Botão rápido (ml)</p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={10}
+                  max={2000}
+                  step={10}
+                  value={preferredMl}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    if (Number.isFinite(v)) setPreferredMl(Math.max(10, Math.min(2000, v)));
+                  }}
+                  className="w-full font-mono bg-black/40 border border-[color:var(--gold)]/30 rounded-lg px-2 py-1.5 text-white text-sm tabular-nums focus:outline-none focus:border-[color:var(--gold)]"
+                />
+                <span className="text-xs text-muted-foreground">ml</span>
+              </div>
             </div>
           </PopoverContent>
         </Popover>
@@ -119,7 +176,12 @@ export function SmartWaterCard() {
             const completed = pct >= 100;
 
             return (
-              <li key={iso} className="flex items-center gap-3">
+              <li
+                key={iso}
+                className={`flex items-center gap-3 transition-opacity ${
+                  isToday ? "opacity-100" : "opacity-55"
+                }`}
+              >
                 <span
                   className={`font-mono text-[10px] uppercase tracking-wider w-7 ${
                     isToday
@@ -129,9 +191,11 @@ export function SmartWaterCard() {
                         : "text-muted-foreground/60"
                   }`}
                   style={
-                    completed
-                      ? { textShadow: "0 0 6px rgb(56 189 248 / 0.7)" }
-                      : undefined
+                    isToday
+                      ? { textShadow: "0 0 8px rgb(255 215 0 / 0.55)" }
+                      : completed
+                        ? { textShadow: "0 0 6px rgb(56 189 248 / 0.6)" }
+                        : undefined
                   }
                 >
                   {label}
@@ -144,26 +208,27 @@ export function SmartWaterCard() {
                     animate={{ width: `${pct}%` }}
                     transition={{
                       type: "spring",
-                      stiffness: 90,
-                      damping: 18,
-                      duration: 0.7,
+                      stiffness: 110,
+                      damping: 20,
                     }}
                     className="relative h-full rounded-full"
                     style={{
-                      background:
-                        "linear-gradient(90deg, rgb(56 189 248 / 0.65), rgb(125 211 252 / 0.85))",
-                      boxShadow: completed || isToday
-                        ? "0 0 8px rgb(56 189 248 / 0.8), inset 0 0 4px rgb(255 255 255 / 0.3)"
-                        : "inset 0 0 3px rgb(255 255 255 / 0.15)",
+                      background: isToday
+                        ? "linear-gradient(90deg, rgb(56 189 248 / 0.95), rgb(125 211 252 / 1))"
+                        : "linear-gradient(90deg, rgb(56 189 248 / 0.45), rgb(125 211 252 / 0.6))",
+                      boxShadow: isToday
+                        ? "0 0 12px rgb(56 189 248 / 0.95), 0 0 22px rgb(56 189 248 / 0.45), inset 0 0 6px rgb(255 255 255 / 0.4)"
+                        : completed
+                          ? "0 0 6px rgb(56 189 248 / 0.5), inset 0 0 3px rgb(255 255 255 / 0.2)"
+                          : "inset 0 0 3px rgb(255 255 255 / 0.1)",
                     }}
                   >
-                    {/* Glow sweep on today's bar after add */}
                     <AnimatePresence>
                       {isToday && pulseKey > 0 && (
                         <motion.span
                           key={`sweep-${pulseKey}`}
                           aria-hidden
-                          initial={{ x: "-120%", opacity: 0.9 }}
+                          initial={{ x: "-120%", opacity: 0.95 }}
                           animate={{ x: "220%", opacity: 0 }}
                           transition={{ duration: 1.1, ease: "easeOut" }}
                           className="absolute inset-y-0 w-1/3 rounded-full"
@@ -178,7 +243,11 @@ export function SmartWaterCard() {
                   </motion.div>
                 </div>
 
-                <span className="font-mono text-[10px] tabular-nums text-muted-foreground/70 w-8 text-right">
+                <span
+                  className={`font-mono text-[10px] tabular-nums w-8 text-right ${
+                    isToday ? "text-[color:var(--gold)]" : "text-muted-foreground/70"
+                  }`}
+                >
                   {pct}%
                 </span>
               </li>
@@ -186,35 +255,60 @@ export function SmartWaterCard() {
           })}
         </ul>
 
-        {/* Right: action pills */}
-        <div className="flex flex-col justify-center gap-2 w-20">
+        {/* Right: primary + custom */}
+        <div className="flex flex-col justify-center gap-2 w-24">
           <button
-            onClick={() => handleAdd(100)}
-            className="press group relative rounded-full px-3 py-2.5 bg-white/[0.03] backdrop-blur-md border border-[color:var(--cyan)]/40 hover:border-[color:var(--cyan)] transition-all"
+            onClick={() => handleAdd(preferredMl)}
+            className="press group relative rounded-full px-3 py-3 bg-white/[0.03] backdrop-blur-md border border-[color:var(--gold)]/60 hover:border-[color:var(--gold)] transition-all"
             style={{
               boxShadow:
-                "0 0 12px rgb(56 189 248 / 0.25), inset 0 0 8px rgb(56 189 248 / 0.08)",
+                "0 0 14px rgb(255 215 0 / 0.25), inset 0 0 10px rgb(255 215 0 / 0.07)",
             }}
           >
-            <span className="flex items-center justify-center gap-1 text-[color:var(--cyan)] font-mono text-xs font-bold">
-              <Plus className="size-3" /> 100
+            <span className="flex items-center justify-center gap-1 text-[color:var(--gold)] font-mono text-sm font-bold">
+              <Plus className="size-3.5" /> {preferredMl}
             </span>
-            <span className="block text-[9px] uppercase tracking-wider text-muted-foreground/60 mt-0.5">
+            <span className="block text-[9px] uppercase tracking-wider text-muted-foreground/70 mt-0.5">
               ml
             </span>
           </button>
-          <button
-            onClick={() => handleAdd(250)}
-            className="press rounded-full px-3 py-2 bg-white/[0.02] backdrop-blur-md border border-[color:var(--cyan)]/25 hover:border-[color:var(--cyan)]/60 transition-all text-[color:var(--cyan)]/90 font-mono text-[11px] font-semibold"
-          >
-            +250
-          </button>
-          <button
-            onClick={() => handleAdd(500)}
-            className="press rounded-full px-3 py-2 bg-white/[0.02] backdrop-blur-md border border-[color:var(--cyan)]/25 hover:border-[color:var(--cyan)]/60 transition-all text-[color:var(--cyan)]/90 font-mono text-[11px] font-semibold"
-          >
-            +500
-          </button>
+
+          <Popover open={customOpen} onOpenChange={setCustomOpen}>
+            <PopoverTrigger asChild>
+              <button
+                className="press flex items-center justify-center gap-1 rounded-full px-2 py-1.5 bg-white/[0.02] backdrop-blur-md border border-[color:var(--cyan)]/30 hover:border-[color:var(--cyan)]/70 transition-all text-[color:var(--cyan)]/90 font-mono text-[10px] uppercase tracking-wider"
+              >
+                <SlidersHorizontal className="size-2.5" /> Custom
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-48 luxe-card p-3 border-0">
+              <p className="caps-gold mb-2">Adicionar (ml)</p>
+              <div className="flex items-center gap-2">
+                <input
+                  autoFocus
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={3000}
+                  step={50}
+                  value={customMl}
+                  onChange={(e) => setCustomMl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") submitCustom();
+                  }}
+                  placeholder="ex: 350"
+                  className="w-full font-mono bg-black/40 border border-[color:var(--gold)]/30 rounded-lg px-2 py-1.5 text-white text-sm tabular-nums focus:outline-none focus:border-[color:var(--gold)] placeholder:text-muted-foreground/40"
+                />
+                <button
+                  onClick={submitCustom}
+                  className="press rounded-md p-1.5 border border-[color:var(--gold)]/50 hover:border-[color:var(--gold)] text-[color:var(--gold)]"
+                  aria-label="Adicionar"
+                >
+                  <Plus className="size-3.5" />
+                </button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
