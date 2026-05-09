@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TarefasRouteImport } from './routes/tarefas'
+import { Route as PreferenciasRouteImport } from './routes/preferencias'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as HabitosRouteImport } from './routes/habitos'
@@ -21,6 +22,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const TarefasRoute = TarefasRouteImport.update({
   id: '/tarefas',
   path: '/tarefas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreferenciasRoute = PreferenciasRouteImport.update({
+  id: '/preferencias',
+  path: '/preferencias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/habitos': typeof HabitosRoute
   '/metas': typeof MetasRoute
   '/perfil': typeof PerfilRoute
+  '/preferencias': typeof PreferenciasRoute
   '/tarefas': typeof TarefasRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/habitos': typeof HabitosRoute
   '/metas': typeof MetasRoute
   '/perfil': typeof PerfilRoute
+  '/preferencias': typeof PreferenciasRoute
   '/tarefas': typeof TarefasRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/habitos': typeof HabitosRoute
   '/metas': typeof MetasRoute
   '/perfil': typeof PerfilRoute
+  '/preferencias': typeof PreferenciasRoute
   '/tarefas': typeof TarefasRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/habitos'
     | '/metas'
     | '/perfil'
+    | '/preferencias'
     | '/tarefas'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/habitos'
     | '/metas'
     | '/perfil'
+    | '/preferencias'
     | '/tarefas'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/habitos'
     | '/metas'
     | '/perfil'
+    | '/preferencias'
     | '/tarefas'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   HabitosRoute: typeof HabitosRoute
   MetasRoute: typeof MetasRoute
   PerfilRoute: typeof PerfilRoute
+  PreferenciasRoute: typeof PreferenciasRoute
   TarefasRoute: typeof TarefasRoute
 }
 
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/tarefas'
       fullPath: '/tarefas'
       preLoaderRoute: typeof TarefasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preferencias': {
+      id: '/preferencias'
+      path: '/preferencias'
+      fullPath: '/preferencias'
+      preLoaderRoute: typeof PreferenciasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   HabitosRoute: HabitosRoute,
   MetasRoute: MetasRoute,
   PerfilRoute: PerfilRoute,
+  PreferenciasRoute: PreferenciasRoute,
   TarefasRoute: TarefasRoute,
 }
 export const routeTree = rootRouteImport
