@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ArrowUpRight, Droplet, Flame, Target, Zap } from "lucide-react";
+import { ArrowUpRight, Flame, Target, Zap } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { SmartWaterCard } from "@/components/SmartWaterCard";
 import { useGoals, useHabits, useTasks, useWellness } from "@/lib/store";
