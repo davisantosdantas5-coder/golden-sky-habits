@@ -77,7 +77,7 @@ function Dashboard() {
       </motion.section>
 
       {/* BENTO GRID — densidade tática */}
-      <div className="grid grid-cols-6 gap-3">
+      <div className="grid grid-cols-6 gap-4">
         {/* XP — wide area chart */}
         <motion.section
           initial={{ opacity: 0, y: 10 }}
@@ -148,14 +148,58 @@ function Dashboard() {
           <SmartWaterCard />
         </motion.div>
 
-        {/* HABITS — compact tile */}
-        <CompactTile
-          to="/habitos"
-          icon={Flame}
-          label="Hábitos"
-          value={`${checkedToday}/${habits.length || 0}`}
-          delay={0.15}
-        />
+        {/* HABITS WEEKLY — 3D bar chart */}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.13, duration: 0.4 }}
+          className="luxe-card col-span-6 p-5"
+        >
+          <header className="flex items-start justify-between mb-4">
+            <div>
+              <p className="caps-gold flex items-center gap-1.5">
+                <Flame className="size-3 gold-icon" /> Hábitos · 7D
+              </p>
+              <p className="font-mono text-3xl font-bold text-white tabular-nums tracking-tight mt-1">
+                {checkedToday}
+                <span className="text-sm text-muted-foreground font-medium ml-1">
+                  / {habits.length || 0}
+                </span>
+              </p>
+            </div>
+            <Link
+              to="/habitos"
+              className="caps-mute hover:text-[color:var(--gold)] transition-colors"
+            >
+              Ver →
+            </Link>
+          </header>
+          <div className="flex items-end justify-between gap-2 h-24 px-1">
+            {days.map((iso) => {
+              const completed = habits.filter((h) => h.history.includes(iso)).length;
+              const pct = habits.length === 0 ? 0 : (completed / habits.length) * 100;
+              const isToday = iso === days[days.length - 1];
+              return (
+                <div key={iso} className="flex flex-1 flex-col items-center gap-1.5">
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: `${Math.max(6, pct)}%` }}
+                    transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="bento-bar w-full max-w-[18px]"
+                    style={isToday ? { filter: "brightness(1.15)" } : { opacity: 0.55 }}
+                  />
+                  <span
+                    className={`caps-mute text-[9px] ${
+                      isToday ? "text-[color:var(--gold)]" : ""
+                    }`}
+                  >
+                    {dayLabel(iso).slice(0, 1)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
 
         {/* TASKS */}
         <CompactTile
@@ -163,12 +207,34 @@ function Dashboard() {
           icon={ArrowUpRight}
           label="Tarefas"
           value={tasksOpen}
-          delay={0.2}
+          delay={0.18}
           span={3}
         />
 
-        {/* GOALS */}
-        <CompactTile to="/metas" icon={Target} label="Metas" value={`${goalsAvg}%`} delay={0.25} span={3} />
+        {/* GOALS — Neon double-stroke ring */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22, duration: 0.4 }}
+          className="col-span-3"
+        >
+          <Link to="/metas" className="press luxe-card relative block p-4 h-full overflow-hidden">
+            <div className="flex items-center justify-between">
+              <Target className="size-4 text-[color:var(--gold)] gold-icon" />
+              <ArrowUpRight className="size-3 text-muted-foreground" />
+            </div>
+            <div className="mt-2 flex items-center gap-3">
+              <NeonRing pct={goalsAvg} />
+              <div>
+                <p className="font-mono text-2xl font-bold text-white tabular-nums tracking-tight">
+                  {goalsAvg}
+                  <span className="text-sm text-muted-foreground ml-0.5">%</span>
+                </p>
+                <p className="caps-mute mt-0.5">Metas</p>
+              </div>
+            </div>
+          </Link>
+        </motion.div>
 
         {/* WELLNESS — wide bottom strip */}
         <motion.section
@@ -238,38 +304,56 @@ function Mini({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-/** SVG ring that hugs the inner border with gold gradient progress */
-function RingBorder({ pct }: { pct: number }) {
+/** Neon double-stroke circular progress ring */
+function NeonRing({ pct }: { pct: number }) {
+  const clamped = Math.max(0, Math.min(100, pct));
+  const r = 26;
+  const c = 2 * Math.PI * r;
+  const dash = (clamped / 100) * c;
   return (
-    <svg
-      aria-hidden
-      className="absolute inset-1.5 pointer-events-none"
-      width="calc(100% - 12px)"
-      height="calc(100% - 12px)"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-    >
+    <svg width="64" height="64" viewBox="0 0 64 64" className="shrink-0">
       <defs>
-        <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="neonRingGold" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#FFD700" />
           <stop offset="100%" stopColor="#B8860B" />
         </linearGradient>
+        <filter id="neonRingGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="1.6" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
-      <rect
-        x="0.5"
-        y="0.5"
-        width="99"
-        height="99"
-        rx="6"
-        ry="6"
+      {/* outer faint track */}
+      <circle cx="32" cy="32" r={r + 3} fill="none" stroke="rgb(255 215 0 / 0.12)" strokeWidth="1" />
+      {/* inner faint track */}
+      <circle cx="32" cy="32" r={r} fill="none" stroke="rgb(255 215 0 / 0.15)" strokeWidth="3" />
+      {/* progress arc */}
+      <circle
+        cx="32"
+        cy="32"
+        r={r}
         fill="none"
-        stroke="url(#ringGold)"
-        strokeWidth="0.6"
+        stroke="url(#neonRingGold)"
+        strokeWidth="3"
         strokeLinecap="round"
-        pathLength={100}
-        strokeDasharray={`${pct} ${100 - pct}`}
-        vectorEffect="non-scaling-stroke"
-        style={{ filter: "drop-shadow(0 0 4px rgb(255 215 0 / 0.6))" }}
+        strokeDasharray={`${dash} ${c - dash}`}
+        transform="rotate(-90 32 32)"
+        filter="url(#neonRingGlow)"
+      />
+      {/* outer thin highlight arc */}
+      <circle
+        cx="32"
+        cy="32"
+        r={r + 3}
+        fill="none"
+        stroke="#FFD700"
+        strokeWidth="0.8"
+        strokeLinecap="round"
+        strokeDasharray={`${(clamped / 100) * (2 * Math.PI * (r + 3))} ${2 * Math.PI * (r + 3)}`}
+        transform="rotate(-90 32 32)"
+        opacity="0.6"
       />
     </svg>
   );
