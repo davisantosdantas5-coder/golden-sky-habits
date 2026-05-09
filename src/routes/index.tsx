@@ -304,38 +304,56 @@ function Mini({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-/** SVG ring that hugs the inner border with gold gradient progress */
-function RingBorder({ pct }: { pct: number }) {
+/** Neon double-stroke circular progress ring */
+function NeonRing({ pct }: { pct: number }) {
+  const clamped = Math.max(0, Math.min(100, pct));
+  const r = 26;
+  const c = 2 * Math.PI * r;
+  const dash = (clamped / 100) * c;
   return (
-    <svg
-      aria-hidden
-      className="absolute inset-1.5 pointer-events-none"
-      width="calc(100% - 12px)"
-      height="calc(100% - 12px)"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-    >
+    <svg width="64" height="64" viewBox="0 0 64 64" className="shrink-0">
       <defs>
-        <linearGradient id="ringGold" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="neonRingGold" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#FFD700" />
           <stop offset="100%" stopColor="#B8860B" />
         </linearGradient>
+        <filter id="neonRingGlow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="1.6" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
-      <rect
-        x="0.5"
-        y="0.5"
-        width="99"
-        height="99"
-        rx="6"
-        ry="6"
+      {/* outer faint track */}
+      <circle cx="32" cy="32" r={r + 3} fill="none" stroke="rgb(255 215 0 / 0.12)" strokeWidth="1" />
+      {/* inner faint track */}
+      <circle cx="32" cy="32" r={r} fill="none" stroke="rgb(255 215 0 / 0.15)" strokeWidth="3" />
+      {/* progress arc */}
+      <circle
+        cx="32"
+        cy="32"
+        r={r}
         fill="none"
-        stroke="url(#ringGold)"
-        strokeWidth="0.6"
+        stroke="url(#neonRingGold)"
+        strokeWidth="3"
         strokeLinecap="round"
-        pathLength={100}
-        strokeDasharray={`${pct} ${100 - pct}`}
-        vectorEffect="non-scaling-stroke"
-        style={{ filter: "drop-shadow(0 0 4px rgb(255 215 0 / 0.6))" }}
+        strokeDasharray={`${dash} ${c - dash}`}
+        transform="rotate(-90 32 32)"
+        filter="url(#neonRingGlow)"
+      />
+      {/* outer thin highlight arc */}
+      <circle
+        cx="32"
+        cy="32"
+        r={r + 3}
+        fill="none"
+        stroke="#FFD700"
+        strokeWidth="0.8"
+        strokeLinecap="round"
+        strokeDasharray={`${(clamped / 100) * (2 * Math.PI * (r + 3))} ${2 * Math.PI * (r + 3)}`}
+        transform="rotate(-90 32 32)"
+        opacity="0.6"
       />
     </svg>
   );
