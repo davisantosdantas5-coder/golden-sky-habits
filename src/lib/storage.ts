@@ -20,7 +20,15 @@ export function useLocalStorage<T>(key: string, initial: T) {
   return [value, setValue] as const;
 }
 
-export const todayKey = () => new Date().toISOString().slice(0, 10);
+// Local-date YYYY-MM-DD (no UTC drift across timezones)
+function localISO(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export const todayKey = () => localISO(new Date());
 
 export function lastNDays(n: number): string[] {
   const out: string[] = [];
@@ -28,7 +36,7 @@ export function lastNDays(n: number): string[] {
   for (let i = n - 1; i >= 0; i--) {
     const t = new Date(d);
     t.setDate(d.getDate() - i);
-    out.push(t.toISOString().slice(0, 10));
+    out.push(localISO(t));
   }
   return out;
 }
