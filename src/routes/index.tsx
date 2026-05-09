@@ -138,42 +138,15 @@ function Dashboard() {
           </div>
         </motion.section>
 
-        {/* WATER — medium card with ring progress hugging inner border */}
-        <motion.section
+        {/* WATER — Smart weekly tracker with neon flow */}
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
-          className="luxe-card col-span-4 p-5 relative overflow-hidden"
+          className="col-span-6"
         >
-          <RingBorder pct={waterPct} />
-          <div className="relative">
-            <p className="caps-gold flex items-center gap-1.5">
-              <Droplet className="size-3 gold-icon" fill="currentColor" /> Hidratação
-            </p>
-            <p className="font-mono text-4xl font-bold text-white tabular-nums tracking-tight mt-1">
-              {waterL}
-              <span className="text-sm text-muted-foreground font-medium ml-1">L</span>
-            </p>
-            <div className="mt-3 flex items-end justify-between">
-              <p className="caps-mute">Meta · 2.0L</p>
-              <p className="font-mono text-lg text-[color:var(--gold)] tabular-nums">{waterPct}%</p>
-            </div>
-            <div className="mt-3 flex gap-2">
-              <button
-                onClick={() => water.add(250)}
-                className="press flex-1 rounded-xl border border-[color:var(--gold)]/30 bg-white/[0.03] py-2 text-xs font-semibold text-[color:var(--gold)] hover:bg-[color:var(--gold)]/10 transition-colors"
-              >
-                +250
-              </button>
-              <button
-                onClick={() => water.add(500)}
-                className="press flex-1 rounded-xl border border-[color:var(--gold)]/30 bg-white/[0.03] py-2 text-xs font-semibold text-[color:var(--gold)] hover:bg-[color:var(--gold)]/10 transition-colors"
-              >
-                +500
-              </button>
-            </div>
-          </div>
-        </motion.section>
+          <SmartWaterCard />
+        </motion.div>
 
         {/* HABITS — compact tile */}
         <CompactTile
